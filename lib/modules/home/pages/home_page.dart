@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:inventorycontrol/constants/spacing_sizes.dart';
+import 'package:inventorycontrol/modules/login/components/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -71,6 +74,18 @@ class _MyHomePageState extends State<HomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            OutlinedButton(
+                onPressed: () => context.read<AuthService>().logout(),
+                style: OutlinedButton.styleFrom(
+                  primary: Colors.red,
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(SpacingSizes.g),
+                  child: Text(
+                    'Sair do App',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ))
           ],
         ),
       ),

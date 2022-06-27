@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventorycontrol/constants/spacing_sizes.dart';
+import 'package:inventorycontrol/modules/login/components/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -31,13 +33,35 @@ class _LoginPageState extends State<LoginPage> {
       if (isLogin) {
         formTitle = 'Bem vindo';
         actionButton = 'Login';
-        toggleButton = 'Crie sua conta.';
+        toggleButton = 'Ainda não tem conta? Crie sua conta agora';
       } else {
         formTitle = 'Crie sua conta';
         actionButton = 'Registre-se';
-        toggleButton = 'Return to Login.';
+        toggleButton = 'Retornar para Login';
       }
     });
+  }
+
+  login() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().login(email.text, password.text);
+    } on AuthException catch (e) {
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  register() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().register(email.text, password.text);
+    } on AuthException catch (e) {
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 
   @override
@@ -101,23 +125,49 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(SpacingSizes.xl),
+                  padding: const EdgeInsets.only(
+                      top: SpacingSizes.xl,
+                      left: SpacingSizes.xl,
+                      right: SpacingSizes.xl),
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        if (isLogin) {
+                          login();
+                        } else {
+                          register();
+                        }
+                      }
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.check),
-                        Padding(
-                          padding: const EdgeInsets.all(SpacingSizes.sm),
-                          child: Text(
-                            actionButton,
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ],
+                      children: (loading)
+                          ? [
+                              const Padding(
+                                  padding: EdgeInsets.all(SpacingSizes.g),
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white),
+                                  ))
+                            ]
+                          : [
+                              const Icon(Icons.check),
+                              Padding(
+                                padding: const EdgeInsets.all(SpacingSizes.sm),
+                                child: Text(
+                                  actionButton,
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ],
                     ),
                   ),
+                ),
+                TextButton(
+                  onPressed: () => setFormAction(!isLogin),
+                  child: Text(toggleButton),
                 )
               ],
             ),
