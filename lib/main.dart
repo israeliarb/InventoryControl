@@ -14,7 +14,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
